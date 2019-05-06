@@ -1,0 +1,74 @@
+
+<blockquote class="layui-elem-quote explain" id="">
+	添加卡密
+</blockquote>
+<div class="layui-form">
+
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">商品</label>
+		<div class="layui-input-block">
+			<select id="km_shop">
+				<option value="">请选择商品</option>
+			</select>
+		</div>
+	</div>
+
+
+
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">卡密</label>
+		<div class="layui-input-block">
+			<textarea id="kms" class="layui-textarea" rows="15" placeholder="请输入卡密内容，一行一个"></textarea>
+		</div>
+	</div>
+
+
+</div>
+
+<div style="text-align: right">
+	<button class="layui-btn" lay-submit lay-filter="formDemo" onclick="sub()">添加</button>
+
+</div>
+
+
+
+<script>
+
+
+    function sub() {
+        var shop =$('#km_shop').val();
+        if (shop == ""){
+            layer.msg("请选择商品");
+            return;
+        }
+
+        var kms =$('#kms').val();
+
+        if (kms == ""){
+            layer.msg("请输入卡密");
+            return;
+        }
+
+
+		var post = "shopid="+shop+"&kms="+kms;
+        $.post("admin/addKm",post,function (data) {
+            layer.msg(data.msg);
+        });
+    }
+
+
+    layui.use(['layedit',"form"], function(){
+
+        $.post("admin/getShop",function (data) {
+            for (var i = 0;i<data.data.length;i++){
+                $("#km_shop").append('<option value="'+data.data[i].id+'">'+data.data[i].shopname+'</option>');
+            }
+            layui.form.render();
+
+        });
+    });
+
+</script>
+

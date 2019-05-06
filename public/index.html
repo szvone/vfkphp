@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title id="name">载入中...</title>
+		<link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="http://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+		<style>
+			img.logo{width:14px;height:14px;margin:0 5px 0 3px;}
+			body{
+			background:#ecedf0 url("image/bj.png") fixed;
+			background-repeat:repeat;}
+		</style>
+	</head>
+	<body>
+		<br />
+		<div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 center-block" style="float: none;">
+
+			<div class="panel panel-default">
+				<div class="panel-body" style="text-align: center;color:#64b2ca;font-family:'微软雅黑';">
+					<h1 id="webname">载入中...</h1>
+				</div>
+			</div>
+
+
+			<div class="panel panel-info">
+				<div class="list-group-item reed" style="background:#64b2ca;">
+					<h3 class="panel-title">
+						<font color="#fff"><i class="fa fa-volume-up"></i>&nbsp;&nbsp;<b>站点公告</b></font>
+					</h3>
+				</div>
+				<div style="padding: 10px;" id="notice">
+					载入中...
+				</div>
+			</div>
+
+
+			<div class="panel panel-info">
+				<div class="list-group-item reed" style="background:#64b2ca;">
+					<h3 class="panel-title">
+						<font color="#fff"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp;<b>自助下单</b></font>
+					</h3>
+				</div>
+
+				<div class="list-group-item">
+
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon">选择分类</div>
+							<select name="shopType" id="shopType" class="form-control" onchange="getShop()">
+								<option value="0">请选择分类</option>
+
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon">选择商品</div>
+							<select name="shop" id="shop" class="form-control" onchange="getPoint();">
+								<option value="-1">请选择商品</option>
+							</select>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon">商品价格</div>
+							<input type="text" name="money" id="money" class="form-control" disabled value="￥0.00"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon">购买数量</div>
+							<input type="number" name="num" id="num" class="form-control" value="1" oninput="getPoint()"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon" id="inputname">联系方式</div>
+							<input type="text" name="qq" id="qq" value="" class="form-control" required placeholder="QQ或邮箱 查询订单的时候使用" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon">支付方式</div>
+							<select name="shop" id="paytype" class="form-control">
+								<option value="0">请选择支付方式</option>
+								<option value="1">微信</option>
+								<option value="2">支付宝</option>
+
+							</select>
+						</div>
+					</div>
+
+
+					<div class="alert alert-success" id="shopkc" style="display: none;"></div>
+					<div class="alert alert-info" id="shoptext" style="display: none;"></div>
+
+
+					<input type="submit" onclick="buy()" id="submit_buy" class="btn btn-primary btn-block" value="立即购买">
+
+
+
+				</div>
+
+			</div>
+
+
+			<div class="panel panel-info">
+				<div class="list-group-item reed" style="background:#64b2ca;">
+					<h3 class="panel-title">
+						<font color="#fff"><i class="fa fa-search"></i>&nbsp;&nbsp;<b>订单查询</b></font>
+					</h3>
+				</div>
+
+				<div class="list-group-item">
+
+					<div class="alert alert-info">输入下单时输入的联系方式，即可查询您的最近10条历史订单！</div>
+
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-addon">联系方式</div>
+							<input type="text" name="qq" id="qq3" value="" class="form-control" placeholder="请输入下单时的联系方式"
+							 required />
+						</div>
+					</div>
+					
+					<input type="submit" id="submit_query" class="btn btn-primary btn-block" value="立即查询" onclick="cxo()">
+
+					<br>
+					<div id="olist">
+
+					</div>
+
+				</div>
+
+			</div>
+
+
+			<p style="text-align:center">&copy; Powered by Vone!</p>
+		</div>
+
+		<script src="http://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+		<script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="http://cdn.bootcss.com/layer/3.0.1/layer.min.js"></script>
+		<script>
+			$.post("getWebConfig",function (data) {
+				$("#notice").html(data.data.gg);
+				$("#name").html(data.data.name);
+				$("#webname").html(data.data.name);
+
+
+
+			});
+            $.post("getShopType",function (data) {
+                for (var i = 0;i<data.data.length;i++){
+                    $("#shopType").append('<option value="'+data.data[i].id+'">'+data.data[i].name+'</option>');
+				}
+            });
+
+            var shopList = [];
+
+            function getShop() {
+                $.post("getShop","typeId="+$("#shopType").val(),function (data) {
+                    $("#shop").html('<option value="-1">请选择商品</option>');
+                    for (var i = 0;i<data.data.length;i++){
+                        $("#shop").append('<option value="'+i+'">'+data.data[i].shopname+'</option>');
+                    }
+                    shopList = data.data;
+                });
+            }
+
+            function getPoint() {
+                if ($("#shop").val() == -1){
+                    return;
+				}
+				$("#money").val("￥"+shopList[$("#shop").val()].money*$("#num").val())
+
+				$("#shoptext").html(shopList[$("#shop").val()].shoptext)
+				$("#shoptext").show()
+				$("#shopkc").html("库存："+shopList[$("#shop").val()].kucun+"<br>销量："+shopList[$("#shop").val()].xiaoliang)
+				$("#shopkc").show()
+
+
+			}
+
+
+            function buy() {
+				var shop = $("#shop").val();
+
+				var num = $("#num").val();
+				var qq = $("#qq").val();
+				var paytype = $("#paytype").val();
+				if (shop==-1){
+					layer.msg("请选择商品");
+					return;
+				}
+				var shopid = shopList[shop].id;
+
+				if (num<1){
+					layer.msg("请输入正确的购买数量")
+					return;
+				}
+				if (qq==""){
+					layer.msg("请输入联系方式")
+					return;
+				}
+				if (paytype==0){
+					layer.msg("请选择支付方式")
+					return;
+				}
+				layer.msg('购买中', {
+					icon: 16
+					,shade: 0.01
+					,time:0
+				});
+				$.post("buy","shopid="+shopid+"&num="+num+"&qq="+qq+"&paytype="+paytype,function (data) {
+					if (data.code==1){
+						window.location.href=data.data
+					} else{
+						layer.msg(data.msg)
+					}
+				});
+
+
+			}
+			function getQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+				var r = window.location.search.substr(1).match(reg);
+				if (r != null)
+					return decodeURI(r[2]);
+				return null;
+			}
+			if (getQueryString("orderId")!=null) {
+				layer.msg('查询支付结果中', {
+					icon: 16
+					,shade: 0.01
+					,time:0
+				});
+				$.post("getOrderById","id="+getQueryString("orderId")+"&sign="+getQueryString("sign"),function (data) {
+					layer.closeAll();
+					if (data.code==1){
+						layer.prompt({title: '购买成功，以下是您的卡密信息', formType: 2,value:data.data}, function(text, index){
+							layer.close(index);
+
+						});
+					}
+				});
+			}
+			function cxo() {
+				var qq = $("#qq3").val();
+				if (qq==""){
+					layer.msg("请输入联系方式");
+					return;
+				}
+
+				$.post("getOrderByQQ","qq="+qq,function (data) {
+					$("#olist").html("");
+
+					if (data.code==1){
+						for (var i =0;i<data.data.length;i++){
+							$("#olist").append('<div class="panel panel-info">\n' +
+									'<div class="panel-heading">\n' +
+									'<h3 class="panel-title">['+data.data[i].date+"] "+data.data[i].shopname+'</h3>\n' +
+									'</div>\n' +
+									'<div class="panel-body">\n' +
+									data.data[i].cards +
+									'</div>\n' +
+									'</div>')
+						}
+					}
+					layer.msg(data.msg)
+				});
+			}
+
+		</script>
+
+	</body>
+</html>

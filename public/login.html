@@ -1,0 +1,86 @@
+<html>
+	<head>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<title>后台管理系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+
+		<link href="https://lib.baomitu.com/twitter-bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://lib.baomitu.com/font-awesome/4.4.0/css/font-awesome.css" rel="stylesheet">
+		<link href="https://lib.baomitu.com/animate.css/3.7.0/animate.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<link href="css/login.css" rel="stylesheet">
+	</head>
+	<body class="signin">
+		<!-- begin canvas animation bg -->
+		<div id="canvas-wrapper">
+			<canvas id="demo-canvas" width="1920" height="974"></canvas>
+		</div>
+		<div class="signinpanel animated fadeInDown">
+			<div class="row">
+				<div class="col-sm-12">
+
+					<form id="postForm">
+
+						<h4 class="no-margins">登录：</h4>
+						<p class="m-t-md">后台管理系统登录</p>
+						<div class="form-group">
+							<input class="form-control uname"  id="LoginName" name="LoginName" placeholder="用户名" type="text" value="" />
+							<span class="field-validation-valid" data-valmsg-for="LoginName" data-valmsg-replace="true"></span>
+						</div>
+						<div class="form-group">
+							<input class="form-control pword m-b" id="Password" name="Password" placeholder="密码" type="password" />
+							<span class="field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+						</div>
+						<button id="btnLogin" type="submit" class="btn btn-success btn-block">登录</button>
+					</form>
+				</div>
+			</div>
+			<div class="signup-footer">
+
+				<center>
+					&copy; Powered by Vone!
+				</center>
+
+			</div>
+		</div>
+	</body>
+</html>
+<script src="https://lib.baomitu.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://lib.baomitu.com/layer/3.1.1/layer.js"></script>
+<script src="js/canvasbg.js"></script>
+<script>
+	$(document).ready(function() {
+
+
+		CanvasBG.init({
+			Loc: {
+				x: window.innerWidth / 2,
+				y: window.innerHeight / 3.3
+			}
+		});
+		$.post("getMe",function (data) {
+			if (data.code==1){
+                window.location.href = "admin.html";
+            }
+        });
+		$("#btnLogin").click(function() {
+            var user = $("#LoginName").val();
+            var pass = $("#Password").val();
+
+			$.post("login","username="+user+"&password="+pass,function (data) {
+				if (data.code != -1){
+				    window.location.href = "admin.html";
+				} else{
+				    layer.msg(data.msg)
+				}
+            });
+			return false;
+		});
+	});
+
+
+</script>

@@ -1,0 +1,317 @@
+
+<div class="layui-form">
+    <div class="layui-inline" style="padding: 4px">
+        <label class="layui-form-label">商品分类</label>
+        <div class="layui-input-inline">
+            <select id="shoplist_type" lay-filter="shoplist_type" lay-search="">
+                <option value="">不筛选商品分类</option>
+            </select>
+        </div>
+    </div>
+
+
+
+</div>
+
+<table id="demo" lay-filter="test"></table>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs" lay-event="dckm">导卡密</a>
+
+
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+
+
+    {{#  if(d.state == 1){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="xj">下架</a>
+    {{#  }else{  }}
+    <a class="layui-btn layui-btn-xs" lay-event="sj">上架</a>
+    {{#  }  }}
+
+</script>
+
+
+<script>
+    var myTable;
+
+
+    var type;
+    layui.use(['form','table','laydate'], function(){
+        var table = layui.table,form = layui.form;
+        $.post("admin/getShoptype",function (data) {
+            for (var i = 0;i<data.data.length;i++){
+                $("#shoplist_type").append('<option value="'+data.data[i].id+'">'+data.data[i].name+'</option>');
+            }
+            type = data.data;
+
+            //第一个实例
+            myTable = table.render({
+                elem: '#demo'
+                ,height: 'full-160'
+                ,url: 'admin/getShop'
+                ,cellMinWidth:100
+                ,cols: [[ //表头
+                    //{field: 'id', title: '编号', sort: true},
+                    {field: 'typename', title: '分类'},
+                    {field: 'shopname', title: '商品名',},
+                    {field: 'xiaoliang', title: '销量',align:"center",sort: true},
+                    {field: 'kucun', title: '库存',align:"center",sort: true},
+                    {field: 'money', title: '单价',align:"center",sort: true},
+                    {field: 'state', title: '状态',align:"center",sort: true,templet: function(d){
+                            if (d.state==1){
+                                return "上架";
+                            }
+                            return "下架";
+                        }
+                    },
+                    {title: '操作', toolbar: '#barDemo',minWidth:230}
+                ]]
+                ,page:true
+            });
+            layui.form.render();
+        });
+
+
+
+
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){
+            var data = obj.data //获得当前行数据
+                ,layEvent = obj.event;
+
+            if(layEvent === 'del'){
+                layer.confirm('确定执行操作吗？', function(index){
+
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    $.post("admin/delShop","id="+data.id,function (data) {
+                        if (data.code==1){
+                            obj.del(); //删除对应行（tr）的DOM结构
+                        }
+
+                        layer.msg(data.msg);
+                    });
+                });
+            }else if(layEvent === 'dckm'){
+                layer.prompt({title: '请输入导出卡密数量，导出同时将会删除卡密，请谨慎操作'}, function(value, index){
+                    layer.close(index);
+                    $.post("admin/dcKm","id="+data.id+"&num="+value,function (res) {
+
+                        if (res.code==1){
+                            download(res.data, data.shopname+"_导出卡密（"+value+"）.txt", "text/plain");
+                            myTable.reload();
+                        }else{
+                            layer.msg(res.msg);
+                        }
+                    });
+                });
+            }else if(layEvent === 'edit'){
+                layer.open({
+                    type: 2,
+                    area: ['700px', '70%'],
+                    title:"编辑商品",
+                    fixed: false, //不固定
+                    content: 'pages/admin/shopEdit.html?id='+data.id,
+                    end:function () {
+                        myTable.reload();
+                    }
+                });
+            }else if(layEvent === 'sj'){
+                layer.confirm('确定执行操作吗？', function(index){
+
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    $.post("admin/setShopstate","id="+data.id+"&state=1",function (data) {
+                        myTable.reload();
+
+                        layer.msg(data.msg);
+                    });
+                });
+            }else if(layEvent === 'xj'){
+                layer.confirm('确定执行操作吗？', function(index){
+
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    $.post("admin/setShopstate","id="+data.id+"&state=0",function (data) {
+                        myTable.reload();
+                        layer.msg(data.msg);
+                    });
+                });
+            }
+        });
+
+        form.on('select(shoplist_type)', function(data){
+            console.log(data.value); //得到被选中的值
+            myTable.reload({
+                where: {
+                    type:$("#shoplist_type").val()
+                } ,
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+
+
+
+        form.render();
+
+    });
+
+
+
+
+
+    (function (root, factory) {
+        if (typeof define === 'function' && define.amd) {
+            // AMD. Register as an anonymous module.
+            define([], factory);
+        } else if (typeof exports === 'object') {
+            // Node. Does not work with strict CommonJS, but
+            // only CommonJS-like environments that support module.exports,
+            // like Node.
+            module.exports = factory();
+        } else {
+            // Browser globals (root is window)
+            root.download = factory();
+        }
+    }(this, function () {
+
+        return function download(data, strFileName, strMimeType) {
+
+            var self = window, // this script is only for browsers anyway...
+                u = "application/octet-stream", // this default mime also triggers iframe downloads
+                m = strMimeType || u,
+                x = data,
+                url = !strFileName && !strMimeType && x,
+                D = document,
+                a = D.createElement("a"),
+                z = function(a){return String(a);},
+                B = (self.Blob || self.MozBlob || self.WebKitBlob || z),
+                fn = strFileName || "download",
+                blob,
+                fr,
+                ajax;
+            B= B.call ? B.bind(self) : Blob ;
+
+
+            if(String(this)==="true"){ //reverse arguments, allowing download.bind(true, "text/xml", "export.xml") to act as a callback
+                x=[x, m];
+                m=x[0];
+                x=x[1];
+            }
+
+
+            if(url && url.length< 2048){
+                fn = url.split("/").pop().split("?")[0];
+                a.href = url; // assign href prop to temp anchor
+                if(a.href.indexOf(url) !== -1){ // if the browser determines that it's a potentially valid url path:
+                    var ajax=new XMLHttpRequest();
+                    ajax.open( "GET", url, true);
+                    ajax.responseType = 'blob';
+                    ajax.onload= function(e){
+                        download(e.target.response, fn, u);
+                    };
+                    ajax.send();
+                    return ajax;
+                } // end if valid url?
+            } // end if url?
+
+
+
+            //go ahead and download dataURLs right away
+            if(/^data\:[\w+\-]+\/[\w+\-]+[,;]/.test(x)){
+                return navigator.msSaveBlob ?  // IE10 can't do a[download], only Blobs:
+                    navigator.msSaveBlob(d2b(x), fn) :
+                    saver(x) ; // everyone else can save dataURLs un-processed
+            }//end if dataURL passed?
+
+            blob = x instanceof B ?
+                x :
+                new B([x], {type: m}) ;
+
+
+            function d2b(u) {
+                var p= u.split(/[:;,]/),
+                    t= p[1],
+                    dec= p[2] == "base64" ? atob : decodeURIComponent,
+                    bin= dec(p.pop()),
+                    mx= bin.length,
+                    i= 0,
+                    uia= new Uint8Array(mx);
+
+                for(i;i<mx;++i) uia[i]= bin.charCodeAt(i);
+
+                return new B([uia], {type: t});
+            }
+
+            function saver(url, winMode){
+
+                if ('download' in a) { //html5 A[download]
+                    a.href = url;
+                    a.setAttribute("download", fn);
+                    a.className = "download-js-link";
+                    a.innerHTML = "downloading...";
+                    D.body.appendChild(a);
+                    setTimeout(function() {
+                        a.click();
+                        D.body.removeChild(a);
+                        if(winMode===true){setTimeout(function(){ self.URL.revokeObjectURL(a.href);}, 250 );}
+                    }, 66);
+                    return true;
+                }
+
+                // handle non-a[download] safari as best we can:
+                if(/(Version)\/(\d+)\.(\d+)(?:\.(\d+))?.*Safari\//.test(navigator.userAgent)) {
+                    url=url.replace(/^data:([\w\/\-\+]+)/, u);
+                    if(!window.open(url)){ // popup blocked, offer direct download:
+                        if(confirm("Displaying New Document\n\nUse Save As... to download, then click back to return to this page.")){ location.href=url; }
+                    }
+                    return true;
+                }
+
+                //do iframe dataURL download (old ch+FF):
+                var f = D.createElement("iframe");
+                D.body.appendChild(f);
+
+                if(!winMode){ // force a mime that will download:
+                    url="data:"+url.replace(/^data:([\w\/\-\+]+)/, u);
+                }
+                f.src=url;
+                setTimeout(function(){ D.body.removeChild(f); }, 333);
+
+            }//end saver
+
+
+
+
+            if (navigator.msSaveBlob) { // IE10+ : (has Blob, but not a[download] or URL)
+                return navigator.msSaveBlob(blob, fn);
+            }
+
+            if(self.URL){ // simple fast and modern way using Blob and URL:
+                saver(self.URL.createObjectURL(blob), true);
+            }else{
+                // handle non-Blob()+non-URL browsers:
+                if(typeof blob === "string" || blob.constructor===z ){
+                    try{
+                        return saver( "data:" +  m   + ";base64,"  +  self.btoa(blob)  );
+                    }catch(y){
+                        return saver( "data:" +  m   + "," + encodeURIComponent(blob)  );
+                    }
+                }
+
+                // Blob but not URL:
+                fr=new FileReader();
+                fr.onload=function(e){
+                    saver(this.result);
+                };
+                fr.readAsDataURL(blob);
+            }
+            return true;
+        }; /* end download() */
+    }));
+
+</script>

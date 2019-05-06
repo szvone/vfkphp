@@ -1,0 +1,103 @@
+.table th, .table td {
+    vertical-align: middle !important;
+}
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 0px solid !important;
+}
+
+button.close {
+    margin-top: 2px !important;
+    margin-bottom: 0;
+}
+
+.b-r {
+    border-right: 1px solid #e7eaec !important;
+}
+
+#cdk {
+    width: 100%;
+    height: 400px;
+    font-size: 8px;
+    padding: 12px;
+}
+#cdk_pay {
+    width: 100%;
+    height: 150px;
+    font-size: 8px;
+    padding: 12px;
+}
+
+#cdk_info {
+    width: 100%;
+    height: 200px;
+    font-size: 8px;
+    padding: 12px;
+}
+
+.weixin-tip{
+    display: none;
+    position: fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    background: rgba(0,0,0,0.8);
+    filter:alpha(opacity=80);
+    height: 100%;
+    width: 100%;
+    z-index: 9999;
+}
+.weixin-tip p{
+    text-align: center;
+    margin-top: 10%;
+    padding:0 5%;
+}
+
+.btn-minixs {
+    padding: 4px 5px;
+    line-height: 9px;
+    font-size: 10px;
+}
+
+
+.baoliao_content {
+	float: left;
+	width: 100%;
+	margin-top: 5px;
+
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #f1f1f1;
+	background-color:#FFFFFF;
+}
+.baoliao_content .bl_img {
+	float: left;
+	margin: 3px;
+	width: 11%;
+}
+.baoliao_content .bl_img img {
+	position:relative;
+	width: 55px;
+}
+
+.baoliao_content .bl_left {
+	float: left;
+    margin-left: 10px;
+    margin-right: 5px;
+    width: 75%;
+}
+
+.baoliao_content .bl_title {
+	float: left;
+	font-size: 13px;
+    margin-top: 3px;
+	line-height: normal;
+	width: 100%;
+    height: 100%;
+	color: #666666;
+}
+.baoliao_content .bl_img {
+    float: right;
+    margin-right: 10px;
+    width: 15%;
+}

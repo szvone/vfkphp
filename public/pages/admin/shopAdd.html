@@ -1,0 +1,124 @@
+
+<blockquote class="layui-elem-quote explain" id="">
+	添加商品
+</blockquote>
+<div class="layui-form">
+
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">商品分类</label>
+		<div class="layui-input-block">
+			<select id="shoptype">
+				<option value="">请选择商品分类</option>
+			</select>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">商品名称</label>
+		<div class="layui-input-block">
+			<input type="text" id="shopname" placeholder="请输入商品名称" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">商品单价</label>
+		<div class="layui-input-block">
+			<input type="number" id="money" placeholder="请输入商品单价" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">商品描述</label>
+		<div class="layui-input-block">
+			<textarea id="shoptext" style="display: none;"></textarea>
+		</div>
+	</div>
+
+
+</div>
+
+<div style="text-align: right">
+	<button class="layui-btn" lay-submit lay-filter="formDemo" onclick="sub()">添加</button>
+
+</div>
+
+
+
+<script>
+
+
+    function sub() {
+        var shoptype =$('#shoptype').val();
+        if (shoptype == ""){
+            layer.msg("请选择商品分类");
+            return;
+        }
+		var typename = $("#shoptype").find("option:selected").text();
+		if (typename == ""){
+			layer.msg("请选择商品分类");
+			return;
+		}
+
+
+        var shopname =$('#shopname').val();
+        if (shopname == ""){
+            layer.msg("请输入商品名称");
+            return;
+        }
+        var money =$('#money').val();
+        if (money == ""){
+            layer.msg("请输入商品单价");
+            return;
+        }
+
+
+
+        layedit.sync(layeditindex);
+        var shoptext =$('#shoptext').val();
+
+        if (shoptext == ""){
+            layer.msg("请输入商品描述");
+            return;
+        }
+
+
+		var post = "shoptype="+shoptype+"&typename="+typename+"&shopname="+shopname+"&money="+money+"&shoptext="+shoptext;
+        $.post("admin/addShop",post,function (data) {
+            layer.msg("操作成功");
+        });
+    }
+
+
+    var layedit,layeditindex;
+    layui.use(['layedit',"form"], function(){
+        layedit = layui.layedit;
+        layeditindex = layedit.build('shoptext',{
+            tool: [
+                'strong' //加粗
+                ,'italic' //斜体
+                ,'underline' //下划线
+                ,'del' //删除线
+
+                ,'|' //分割线
+
+                ,'left' //左对齐
+                ,'center' //居中对齐
+                ,'right' //右对齐
+                ,'link' //超链接
+                ,'unlink' //清除链接
+                ,'face' //表情
+            ]
+        }); //建立编辑器
+
+        $.post("admin/getShoptype",function (data) {
+            for (var i = 0;i<data.data.length;i++){
+                $("#shoptype").append('<option value="'+data.data[i].id+'">'+data.data[i].name+'</option>');
+            }
+            layui.form.render();
+
+        });
+    });
+
+</script>
+

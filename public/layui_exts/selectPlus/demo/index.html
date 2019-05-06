@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../../../layui/css/layui.css" media="all">
+
+</head>
+
+<body>
+  <form class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item">
+      <label class="layui-form-label">多选下拉框</label>
+      <div class="layui-input-block" id="test" lay-filter="test">
+
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">单选下拉框</label>
+      <div class="layui-input-block" id="test1" lay-filter="test1">
+
+      </div>
+    </div>
+  </form>
+
+  <script src="../../../layui/layui.js"></script>
+  <script>
+    // document.
+    layui.config({
+      base: '../../../layui_exts/'
+    }).extend({
+      selectPlus: 'selectPlus/selectPlus'
+    }).use(['selectPlus', 'jquery'], function () {
+      var $ = layui.$,
+        selectPlus = layui.selectPlus;
+
+
+      // 单选
+      selectPlus.render({
+        el: '#test1',
+        data: [{
+          "name": "vue",
+          "id": 1,
+          "text": "hello vue"
+        }, {
+          "name": "layui",
+          "id": 2,
+          "text": "hello layui"
+        }, {
+          "name": "react",
+          "id": 3,
+          "text": "hello react"
+        }, {
+          "name": "bootstrap",
+          "id": 4,
+          "text": "hello bootstrap"
+        }, {
+          "name": "element",
+          "id": 5,
+          "text": "hello element"
+        }],
+        type: "radio",
+        valueName: "text",
+        label: ["name", "id"],
+        values: 'hello layui'
+      });
+
+      // 多选
+      var test = selectPlus.render({
+        el: '#test',
+        data: [{
+          "name": "vue",
+          "id": 1,
+          "text": "hello vue"
+        }, {
+          "name": "layui",
+          "id": 2,
+          "text": "hello layui"
+        }, {
+          "name": "react",
+          "id": 3,
+          "text": "hello react"
+        }, {
+          "name": "bootstrap",
+          "id": 4,
+          "text": "hello bootstrap"
+        }, {
+          "name": "element",
+          "id": 5,
+          "text": "hello element"
+        }],
+        valueName: "name",
+        values: ['bootstrap', 'element'],
+        valueSeparator: " --- "
+      });
+      console.log(test.getChecked());
+
+    })
+  </script>
+</body>
+
+</html>
