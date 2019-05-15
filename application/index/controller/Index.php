@@ -175,7 +175,12 @@ class Index
         if ($shop['kucun']<$num){
             return json($this->getReturn(-1,"商品库存不足"));
         }
-        $price = bcmul($num,$money);
+
+        $price = bcmul($num,$money,2);
+
+
+
+
         Db::name("shop")->where("id",$shopId)->setDec("kucun",$num);
         $orderId = Db::name("orders")->insertGetId(array(
             "shopid"=>$shopId,
@@ -197,7 +202,12 @@ class Index
         $key = Db::name("setting")->where("vkey","vmq")->find();
         $sz = explode("/",$key['vvalue']);
         $sign = md5($orderId.$osign.$paytype.$price.$sz[1]);
-        $p = "payId=".$orderId.'&param='.$osign.'&type='.$paytype."&price=".$price.'&sign='.$sign.'&isHtml=1';
+
+        $http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';
+        $payReturn = $http_type.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        $payReturn = str_replace("buy","payReturn",$payReturn);
+
+        $p = "payId=".$orderId.'&param='.$osign.'&type='.$paytype."&price=".$price.'&sign='.$sign.'&isHtml=1'."&payReturn=".$payReturn;
         $url = "http://".$sz[0]."/createOrder?".$p;
 
         return $this->getReturn(1,"成功",$url);
