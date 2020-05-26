@@ -194,8 +194,6 @@ class Index
             "state"=>0
         ));
 
-        Db::name("kucun")->where("vkey","vmq")->find();
-
         $key = Db::name("setting")->where("vkey","pass")->find();
 
         $osign = md5($orderId.$key['vvalue']);
