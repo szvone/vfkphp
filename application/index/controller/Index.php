@@ -194,6 +194,8 @@ class Index
             "state"=>0
         ));
 
+        Db::name("kucun")->where("vkey","vmq")->find();
+
         $key = Db::name("setting")->where("vkey","pass")->find();
 
         $osign = md5($orderId.$key['vvalue']);
@@ -210,7 +212,40 @@ class Index
         $p = "payId=".$orderId.'&param='.$osign.'&type='.$paytype."&price=".$price.'&sign='.$sign.'&isHtml=1'."&payReturn=".$payReturn;
         $url = "http://".$sz[0]."/createOrder?".$p;
 
+//        $this->test($orderId);
+//        $url = "index.html?orderId=".$orderId."&sign=".$osign;
+
         return $this->getReturn(1,"成功",$url);
+    }
+
+    private function test($orderId){
+        $order = Db::name("orders")->where("id",$orderId)->find();
+        $res = Db::name("orders")
+            ->where("state",0)
+            ->where("id",$orderId)
+            ->update(array("state"=>1));
+
+        if ($res){
+
+
+            Db::name("cards")
+                ->where("shopid",$order['shopid'])
+                ->where("state",1)
+                ->limit($order['num'])
+                ->update(array(
+                    "orderid"=>$order['id'],
+                    "state"=>0,
+                ));
+
+            $cards = Db::name("cards")->where("orderid",$order['id'])->select();
+            $card = "";
+            for ($i=0;$i<sizeof($cards);$i++){
+                $card.=$cards[$i]['content']."\r\n";
+            }
+
+            Db::name("orders")->where("id",$order['id'])->update(array("cards"=>$card));
+
+        }
     }
 
 
@@ -244,7 +279,6 @@ class Index
         }
 
         if ($isok){
-            $order = Db::name("orders")->where("id",input("payId"))->find();
             $res = Db::name("orders")
                 ->where("state",0)
                 ->where("id",input("payId"))
@@ -252,6 +286,7 @@ class Index
 
             if ($res){
 
+                $order = Db::name("orders")->where("id",input("payId"))->find();
 
                 Db::name("cards")
                     ->where("shopid",$order['shopid'])
@@ -298,22 +333,24 @@ class Index
                 ->update(array("state"=>1));
 
             if ($res){
+                $order = Db::name("orders")->where("id",input("payId"))->find();
+
                 Db::name("cards")
-                    ->where("shopid",$res['shopid'])
+                    ->where("shopid",$order['shopid'])
                     ->where("state",1)
-                    ->limit($res['num'])
+                    ->limit($order['num'])
                     ->update(array(
-                        "orderid"=>$res['id'],
+                        "orderid"=>$order['id'],
                         "state"=>0,
                     ));
 
-                $cards = Db::name("cards")->where("orderid",$res['id'])->select();
+                $cards = Db::name("cards")->where("orderid",$order['id'])->select();
                 $card = "";
                 for ($i=0;$i<sizeof($cards);$i++){
                     $card.=$cards[$i]['content']."\r\n";
                 }
 
-                Db::name("orders")->where("id",$res['id'])->update(array("cards"=>$card));
+                Db::name("orders")->where("id",$order['id'])->update(array("cards"=>$card));
             }
 
         }else{
